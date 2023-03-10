@@ -2,6 +2,19 @@ const { defineConfig } = require('@vue/cli-service')
 const AutoImport = require('unplugin-auto-import/webpack')
 const Components = require('unplugin-vue-components/webpack')
 const { ElementPlusResolver } = require('unplugin-vue-components/resolvers')
+let proxyObj = {}
+proxyObj['/'] = {
+    //websocket
+    ws: false,
+    //目标地址
+    target: 'http://localhost:3000',
+    //发送请求头中host会设置成target
+    changeOrigin: true,
+    //重写请求地址
+    pathRewrite: {
+        '^/': '/'
+    }
+}
 module.exports = defineConfig({
     transpileDependencies: true,
     configureWebpack: {
@@ -38,4 +51,9 @@ module.exports = defineConfig({
             }),
         ],
     },
+    devServer: {
+        host: 'localhost',
+        port: 8080,
+        proxy: proxyObj
+    }
 })

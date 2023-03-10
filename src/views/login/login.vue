@@ -11,7 +11,7 @@
             <el-form-item prop="code">
                 <el-input type="text" auto-complete="false" v-model="user.code" placeholder="点击图片更换验证码"
                     style="width:240px;margin-right: 5px;float: left;"></el-input>
-                <img src="" style="float:right" alt="加载中...">
+                <div @click="changeCaptcha" v-html="captchaSrc" style="float:right" alt="加载中..."></div>
             </el-form-item>
             <el-checkbox v-model="checked" class="loginRemember">记住我</el-checkbox>
             <el-button type="primary" style="width: 100%" @click="submitLogin(loginForm)">登录</el-button>
@@ -21,8 +21,9 @@
 
 <script setup>
 import { ElMessage } from 'element-plus';
-import { ref,reactive } from 'vue';
-import {useRouter} from 'vue-router'
+import { ref, reactive } from 'vue';
+import { useRouter } from 'vue-router'
+import { getCaptcha, login } from '../../service/modules/login'
 let Base64 = require('js-base64').Base64
 
 const user = ref({
@@ -33,8 +34,18 @@ const user = ref({
 
 const checked = ref(false)
 
+const captchaSrc = ref(null)
+getCaptcha().then(res => {
+    captchaSrc.value = res.data
+})
+const changeCaptcha = function () {
+    getCaptcha().then(res => {
+        captchaSrc.value = res.data
+    })
+}
+
 const localUsername = localStorage.getItem('username')
-if(localUsername){
+if (localUsername) {
     user.value.username = localStorage.getItem('username')
     user.value.password = Base64.decode(localStorage.getItem('password'))
     checked.value = true
@@ -55,25 +66,38 @@ const rules = reactive({
 })
 
 const loginForm = ref(null)
-const submitLogin = async function(loginForm){
+const submitLogin = async function (loginForm) {
     await loginForm.validate((valid) => {
-        if(valid){
-            if(checked.value){
+        if (valid) {
+            if (checked.value) {
                 let password = Base64.encode(user.value.password)
-                localStorage.setItem("username",user.value.username)
-                localStorage.setItem("password",password)
-            }else{
+                localStorage.setItem("username", user.value.username)
+                localStorage.setItem("password", password)
+            } else {
                 localStorage.removeItem("username")
                 localStorage.removeItem("password")
             }
-            ElMessage({
-                message:"success",
-                type:"success"
+            login(user.value).then(res => {
+                console.log(res);
+                if (res.data.code == 0) {
+                    ElMessage({
+                        message: res.data.msg,
+                        type: "error"
+                    })
+                } else {
+                    localStorage.setItem("token", res.data.data.token)
+                    localStorage.setItem("userId", res.data.data.id)
+                    ElMessage({
+                        message: "登录成功",
+                        type: "success"
+                    })
+                    router.push('/home')
+                }
             })
-        }else{
+        } else {
             ElMessage({
-                message:"请输入所有字段",
-                type:"error"
+                message: "请输入所有字段",
+                type: "error"
             })
         }
     })
@@ -101,9 +125,14 @@ const submitLogin = async function(loginForm){
     margin: 10px auto 30px auto;
     text-align: center;
     color: #505458;
+    -webkit-user-select: none;
+    -moz-user-select: none;
+    -ms-user-select: none;
+    user-select: none;
 }
 
 .loginRemember {
     text-align: left;
     margin: 0 0 15px 0;
-}</style>
+}
+</style>
