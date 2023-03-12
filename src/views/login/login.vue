@@ -23,7 +23,7 @@
 import { ElMessage } from 'element-plus';
 import { ref, reactive } from 'vue';
 import { useRouter } from 'vue-router'
-import { getCaptcha, login } from '../../service/modules/login'
+import { getCaptcha, login } from "../../service/modules/user"
 let Base64 = require('js-base64').Base64
 
 const user = ref({
@@ -85,7 +85,7 @@ const submitLogin = async function (loginForm) {
                         type: "error"
                     })
                 } else {
-                    localStorage.setItem("token", res.data.data.token)
+                    localStorage.setItem("token", "Bearer " + res.data.data.token)
                     localStorage.setItem("userId", res.data.data.id)
                     ElMessage({
                         message: "登录成功",

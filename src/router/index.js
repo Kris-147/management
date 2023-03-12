@@ -21,7 +21,50 @@ const router = createRouter({
         path: "/home",
         component: () =>
             import ("@/views/home/home.vue"),
-        name: "home"
+        name: "home",
+        meta: {
+            title: "首页"
+        },
+        children: [{
+            path: "/home",
+            redirect: "/home/userManage"
+        }, {
+            path: "userManage",
+            component: () =>
+                import ("@/views/userManage/userManage.vue"),
+            name: "userManage",
+            meta: {
+                title: "用户管理"
+            }
+        }, {
+            path: "messageManage",
+            component: () =>
+                import ("@/views/messageManage/messageManage.vue"),
+            name: "messageManage",
+            meta: {
+                title: "消息管理"
+            }
+        }, {
+            path: "chapterManage",
+            component: () =>
+                import ("@/views/chapterManage/chapterManage.vue"),
+            name: "chapterManage",
+            meta: {
+                title: "章节管理"
+            }
+        }, {
+            path: "sectionManage",
+            component: () =>
+                import ("@/views/sectionManage/sectionManage.vue"),
+            name: "sectionManage",
+            meta: {
+                title: "内容管理"
+            }
+        }]
+    }, {
+        path: "/:pathMatch(.*)",
+        component: () =>
+            import ("@/views/NotFound/NotFound.vue")
     }]
 })
 
