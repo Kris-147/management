@@ -1,6 +1,10 @@
 :root {
     --el-text-color-disabled: #bbbcbe;
-    --el-avatar-bg-color: var(var(--el-text-color-disabled))
+    --el-avatar-bg-color: var(var(--el-text-color-disabled));
+    --el-color-danger-light-3: #F56C6C;
+    --el-color-primary-light-3: #409EFF;
+    --el-button-active-border-color: #DCDFE6;
+    --el-button-active-text-color: #606266;
 }
 
 

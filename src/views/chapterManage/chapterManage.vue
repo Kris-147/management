@@ -16,10 +16,10 @@
         </div>
         <div>
             <el-table :data="tableData" border style="width: 100%" stripe class="table">
-                <el-table-column prop="id" label="id" width="180" />
-                <el-table-column prop="chapterSort" label="章节顺序" width="200" />
-                <el-table-column prop="chapterName" label="章节名称" width="500" />
-                <el-table-column label="操作">
+                <el-table-column align="center" prop="id" label="id" width="180" />
+                <el-table-column align="center" prop="chapterSort" label="章节顺序" width="200" />
+                <el-table-column align="center" prop="chapterName" label="章节名称" width="500" />
+                <el-table-column align="center" label="操作">
                     <template #default="scope">
                         <el-button size="small" @click="showEditChapterView(scope.row)">
                             修改章节信息

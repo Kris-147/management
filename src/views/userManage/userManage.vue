@@ -16,14 +16,19 @@
         </div>
         <div>
             <el-table :data="tableData" border style="width: 100%" stripe class="table">
-                <el-table-column prop="id" label="id" width="180" />
-                <el-table-column prop="username" label="用户名" width="250" />
-                <el-table-column prop="userrole" label="用户角色" />
-                <el-table-column label="Operations">
+                <el-table-column align="center" prop="id" label="id" width="180" />
+                <el-table-column align="center" prop="username" label="用户名" width="250" />
+                <el-table-column align="center" prop="userrole" label="用户角色">
+                    <template #default="scope">
+                        <el-tag type="success" effect="light" class="mx-1">
+                            {{ scope.row.userrole }}
+                        </el-tag>
+                    </template>
+                </el-table-column>
+                <el-table-column align="center" label="Operations">
                     <template #default="scope">
                         <el-button size="small" @click="showEditUserView(scope.row)">编辑用户信息</el-button>
-                        <el-button size="small" type="danger"
-                            @click="deleteUser(scope.row)">删除用户</el-button>
+                        <el-button size="small" type="danger" @click="deleteUser(scope.row)">删除用户</el-button>
                     </template>
                 </el-table-column>
             </el-table>
@@ -37,8 +42,7 @@
                 <el-form :model="user" :rules="rules" label-width="100px">
                     <el-form-item label="用户名：" prop="username">
                         <el-col :span="8">
-                            <el-input style="width:200px" v-model.trim="user.username"
-                                placeholder="请输入用户名"></el-input>
+                            <el-input style="width:200px" v-model.trim="user.username" placeholder="请输入用户名"></el-input>
                         </el-col>
                     </el-form-item>
                 </el-form>
@@ -61,32 +65,32 @@
 import { Search, Plus } from '@element-plus/icons-vue'
 import { ElMessage, ElMessageBox } from 'element-plus';
 import { init } from 'events';
-import { ref,reactive } from 'vue';
-import {getAllUser, searchAllUser, createUser, updateUser, delUser} from '../../service/modules/user'
+import { ref, reactive } from 'vue';
+import { getAllUser, searchAllUser, createUser, updateUser, delUser } from '../../service/modules/user'
 
 const tableData = ref([])
 const total = ref(0)
 const currentPage = ref(1)
 const size = ref(10)
 const fenye = ref({
-    offset:0,
-    limit:10
+    offset: 0,
+    limit: 10
 })
 const searchName = ref(null)
 const dialogVisible = ref(false)
 const title = ref("")
 const status = ref("")
 const user = ref({
-    id:0,
-    username:""
+    id: 0,
+    username: ""
 })
 const rules = reactive({
-    username:[
-        {require:true,message:"用户名不能为空"}
+    username: [
+        { require: true, message: "用户名不能为空" }
     ]
 })
 
-function initUser(){
+function initUser() {
     fenye.value.offset = (currentPage.value - 1) * size.value
     fenye.value.limit = size.value
     getAllUser(fenye.value).then(res => {
@@ -108,18 +112,18 @@ const currentChange = (current) => {
 }
 
 const searchUser = () => {
-    if(searchName.value){
+    if (searchName.value) {
         fenye.value.offset = (currentPage.value - 1) * size.value
         fenye.value.limit = size.value
-        searchAllUser({...fenye.value,searchName:searchName.value}).then(res => {
+        searchAllUser({ ...fenye.value, searchName: searchName.value }).then(res => {
             tableData.value = res.data.data.userData
             total.value = res.data.data.count
             ElMessage({
-                type:"success",
-                message:"搜索成功"
+                type: "success",
+                message: "搜索成功"
             })
         })
-    }else{
+    } else {
         initUser()
     }
 }
@@ -139,8 +143,8 @@ const closeDialog = () => {
 }
 
 const submitDialog = () => {
-    if(status.value == "add"){
-        createUser({username:user.value.username}).then(res => {
+    if (status.value == "add") {
+        createUser({ username: user.value.username }).then(res => {
             dialogVisible.value = false
             user.value.username = ""
             if (res.data.code == 0) {
@@ -156,7 +160,7 @@ const submitDialog = () => {
                 initUser()
             }
         })
-    }else if(status.value == "update"){
+    } else if (status.value == "update") {
         updateUser(user.value).then(res => {
             dialogVisible.value = false
             user.value.username = ""
@@ -190,12 +194,12 @@ const deleteUser = (data) => {
         `确定要删除用户"${data.username}"吗?`,
         "删除用户",
         {
-            confirmButtonText:"确定",
-            cancelButtonText:"取消",
-            type:"warning"
+            confirmButtonText: "确定",
+            cancelButtonText: "取消",
+            type: "warning"
         }
     ).then(r => {
-        delUser({id:data.id}).then(res =>{
+        delUser({ id: data.id }).then(res => {
             if (res.data.code == 0) {
                 ElMessage({
                     type: 'error',
@@ -234,6 +238,7 @@ const deleteUser = (data) => {
 .table {
     margin-top: 20px;
 }
+
 .fenye {
     margin-top: 30px;
     float: right;

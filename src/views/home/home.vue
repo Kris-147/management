@@ -13,7 +13,7 @@
                 <el-aside :style="{ width: collapseWidth }" class="aside">
                     <Menu :coll="isCollapse"></Menu>
                 </el-aside>
-                <el-main class="main">
+                <el-main class="main" :style="{width:mainCollapseWidth}">
                     <Breadcrumb></Breadcrumb>
                     <div class="content">
                         <RouterView></RouterView>
@@ -40,6 +40,10 @@ const changeCollapse = function () {
 }
 const collapseWidth = computed(() => {
     return isCollapse.value ? "64px" : "200px"
+})
+
+const mainCollapseWidth = computed(() => {
+    return isCollapse.value ? "calc(100% - 64px)" : "calc(100% - 200px)"
 })
 
 const router = useRouter()
@@ -101,12 +105,14 @@ router.replace("/home/userManage")
 .main {
     background-color: chocolate;
     /* width: 100%; */
-    /* height: 100%; */
     /* padding: 0; */
 }
 
 :deep(.el-main) {
     padding: 0;
+    display: flex;
+    flex-direction: column;
+    flex: 1;
 }
 
 .collapse {
