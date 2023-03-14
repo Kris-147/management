@@ -96,10 +96,10 @@ const dialogVisible = ref(false)
 const title = ref("")
 const status = ref("")
 const knowledge = ref({
-    id: 0,
+    id: "",
     knowledgeName: "",
-    content: '',
-    knowledgeSort: 0
+    content: "",
+    knowledgeSort: ""
 })
 
 const rules = reactive({
