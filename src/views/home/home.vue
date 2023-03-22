@@ -47,7 +47,7 @@ const mainCollapseWidth = computed(() => {
 })
 
 const router = useRouter()
-router.replace("/home/userManage")
+router.replace("/admin/userManage")
 
 </script>
 
@@ -67,6 +67,7 @@ router.replace("/home/userManage")
     align-items: center;
     height: 40px;
     padding-right: 50px;
+    border-bottom: 1px solid rgb(220, 223, 230);
 }
 
 :deep(.el-container) {
@@ -81,6 +82,7 @@ router.replace("/home/userManage")
     -ms-overflow-style: none;
     /* Edge */
     scrollbar-width: none;
+    border-right: 1px solid rgb(220, 223, 230);
     /* Firefox */
 }
 
@@ -102,11 +104,7 @@ router.replace("/home/userManage")
     height: 100%;
 } */
 
-.main {
-    background-color: chocolate;
-    /* width: 100%; */
-    /* padding: 0; */
-}
+
 
 :deep(.el-main) {
     padding: 0;
@@ -133,7 +131,14 @@ router.replace("/home/userManage")
 
 .content {
     padding: 10px 10px 0 10px;
-    border: 1px solid #000;
+    /* border: 1px solid #000; */
     /* background-color: blue; */
     height: 93%;
-}</style>
+}
+:deep(.el-menu){
+    border-right: none;
+}
+.el-menu-vertical-demo{
+    user-select: none;
+}
+</style>

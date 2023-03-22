@@ -11,23 +11,28 @@ const router = createRouter({
     history: createWebHashHistory(),
     routes: [{
         path: "/",
-        redirect: "/login"
-    }, {
-        path: "/login",
-        component: () =>
-            import ("@/views/login/login.vue"),
-        name: "login"
+        redirect: "/home"
     }, {
         path: "/home",
         component: () =>
+            import ("@/views/userHome/userHome.vue"),
+        name: "userHome"
+    }, {
+        path: "/adminlogin",
+        component: () =>
+            import ("@/views/login/login.vue"),
+        name: "adminlogin"
+    }, {
+        path: "/admin",
+        component: () =>
             import ("@/views/home/home.vue"),
-        name: "home",
+        name: "admin",
         meta: {
             title: "首页"
         },
         children: [{
-            path: "/home",
-            redirect: "/home/userManage"
+            path: "/admin",
+            redirect: "/admin/userManage"
         }, {
             path: "userManage",
             component: () =>

@@ -29,7 +29,7 @@ const routers = computed(() => {
 .breadcrumb {
     /* width: 100%; */
     height: 30px;
-    background-color: aqua;
+    /* background-color: aqua; */
     display: flex;
     align-items: center;
     padding-left: 20px;

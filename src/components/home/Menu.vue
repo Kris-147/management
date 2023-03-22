@@ -1,13 +1,13 @@
 <template>
-    <el-menu default-active="/home/userManage" class="el-menu-vertical-demo" :collapse="coll" :collapse-transition="false"
+    <el-menu default-active="/admin/userManage" class="el-menu-vertical-demo" :collapse="coll" :collapse-transition="false"
         router>
-        <el-menu-item index="/home/userManage">
+        <el-menu-item index="/admin/userManage">
             <el-icon>
                 <location />
             </el-icon>
             <span>用户管理</span>
         </el-menu-item>
-        <el-menu-item index="/home/messageManage">
+        <el-menu-item index="/admin/messageManage">
             <el-icon><icon-menu /></el-icon>
             <span>消息管理</span>
         </el-menu-item>
@@ -18,13 +18,13 @@
                 </el-icon>
                 <span>知识点管理</span>
             </template>
-            <el-menu-item index="/home/chapterManage">
+            <el-menu-item index="/admin/chapterManage">
                 <el-icon>
                     <document />
                 </el-icon>
                 <span>章节管理</span>
             </el-menu-item>
-            <el-menu-item index="/home/sectionManage">
+            <el-menu-item index="/admin/sectionManage">
                 <el-icon>
                     <document />
                 </el-icon>

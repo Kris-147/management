@@ -91,7 +91,7 @@ const submitLogin = async function (loginForm) {
                         message: "登录成功",
                         type: "success"
                     })
-                    router.push('/home')
+                    router.push('/admin')
                 }
             })
         } else {
