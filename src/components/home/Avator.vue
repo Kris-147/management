@@ -26,7 +26,7 @@ const logout = function(){
         message:"成功退出登录",
         type:"success"
     })
-    router.replace("/")
+    router.replace("/adminlogin")
 }
 </script>
 

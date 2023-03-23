@@ -1,6 +1,6 @@
 <template>
-    <div class="map">
-        map
+    <div class="knowledgemap">
+        knowledgemap
     </div>
 </template>
 

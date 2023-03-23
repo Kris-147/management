@@ -3,21 +3,16 @@ import { defineStore } from 'pinia'
 const useLogin = defineStore("login", {
     state() {
         return {
-            // userInfo: {
-            //     id: null,
-            //     username: null
-            // }
+            userInfo: {
+                userId: undefined,
+                username: undefined
+            }
         }
     },
-    actions: {
-        // async setUserInfo() {
-
-        // }
-    },
-    getters: {
-        // getUserInfo(state) {
-        //     return state.userInfo
-        // }
+    actions: {},
+    getters: {},
+    persist: {
+        enabled: true
     }
 })
 

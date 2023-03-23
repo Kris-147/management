@@ -62,7 +62,11 @@ function httpErrorStatusHandle(error) {
                 message = '参数不正确!';
                 break;
             case 401:
-                message = '您未登录，或者登录已经超时，请先登录!';
+                if (error.response.data.msg) {
+                    message = error.response.data.msg
+                } else {
+                    message = '您未登录，或者登录已经超时，请先登录!';
+                }
                 break;
             case 403:
                 message = '您没有权限操作!';

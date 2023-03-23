@@ -1,0 +1,220 @@
+<template>
+    <div class="learncourse">
+        <div class="inner">
+            <el-skeleton :loading="loading" animated>
+                <template #template>
+                    <el-skeleton-item variant="h1" style="width: 240px;margin-bottom: 10px;" />
+                    <el-skeleton-item variant="h3" style="display: block;width: 360px;margin-bottom: 10px;" />
+                    <el-skeleton-item variant="p" style="margin: 10px 0;" />
+                    <el-skeleton-item variant="p" style="margin: 10px 0;" />
+                    <el-skeleton-item variant="p" style="margin: 10px 0;" />
+                    <el-skeleton-item variant="image" style="width: 240px; height: 240px;margin: 0 auto;" />
+                    <el-skeleton-item variant="p" style="margin: 10px 0;" />
+                    <el-skeleton-item variant="p" style="margin: 10px 0;" />
+                    <el-skeleton-item variant="p" style="margin: 10px 0;" />
+                </template>
+                <template #default>
+                    <div class="chaptername">
+                        {{ knowledge.chapterSort }}.{{ knowledge.chapterName }}
+                    </div>
+                    <div class="sectionname">
+                        {{ knowledge.chapterSort }}.{{ knowledge.knowledgeSort }} {{ knowledge.sectionName }}
+                    </div>
+                    <div class="content" v-html="knowledge.content">
+                    </div>
+                    <div class="time">
+                        {{ knowledge.time }}
+                    </div>
+                </template>
+            </el-skeleton>
+        </div>
+
+        <div class="leftbtns">
+            <div class="back" @click="clickBack">
+                <el-icon :size="26" class="backicon">
+                    <Back />
+                </el-icon>
+                <span>返回</span>
+            </div>
+            <div class="like" @click="clickLike">
+                <el-icon :size="26" class="likeicon">
+                    <Flag />
+                </el-icon>
+                <span>点赞</span>
+                <div class="number">
+                    123
+                </div>
+            </div>
+            <div class="favor" @click="clickFavor">
+                <el-icon :size="26" class="favoricon">
+                    <StarFilled />
+                </el-icon>
+                <span>收藏</span>
+                <div class="number">
+                    123
+                </div>
+            </div>
+        </div>
+    </div>
+</template>
+
+<script setup>
+import { useRoute, useRouter } from 'vue-router'
+import { ref } from 'vue'
+import { getcontent } from '@/service/modules/userHome'
+import { ElMessage, ElSkeleton } from 'element-plus';
+import {
+    Back, StarFilled, Flag
+} from '@element-plus/icons-vue'
+import { getToken } from '@/utils/getToken'
+
+const knowledge = ref({
+    chapterSort: "",
+    knowledgeSort: "",
+    chapterName: "",
+    sectionName: "",
+    content: "",
+    time: ""
+})
+document.body.scrollTop = 0
+
+const loading = ref(true)
+const route = useRoute()
+function addDateZero(num) {
+    return (num < 10 ? "0" + num : num);
+}
+getcontent({ kid: route.params.kid }).then(res => {
+    knowledge.value.chapterName = res.data.data.chapterName
+    knowledge.value.sectionName = res.data.data.knowledgeName
+    knowledge.value.content = res.data.data.content
+    knowledge.value.chapterSort = res.data.data.chapterSort
+    knowledge.value.knowledgeSort = res.data.data.knowledgeSort
+    let d = new Date(res.data.data.updatedAt)
+    let formatdatetime = d.getFullYear() + '-' + addDateZero(d.getMonth() + 1) + '-' + addDateZero(d.getDate()) + ' ' + addDateZero(d.getHours()) + ':' + addDateZero(d.getMinutes()) + ':' + addDateZero(d.getSeconds());
+    knowledge.value.time = formatdatetime
+    loading.value = false
+})
+
+const router = useRouter()
+const clickBack = () => {
+    router.back()
+}
+
+const clickLike = () => {
+    if (getToken()) {
+
+    } else {
+        ElMessage({
+            type: "error",
+            message: "请先登录！"
+        })
+    }
+}
+
+const clickFavor = () => {
+    if (getToken()) {
+
+    } else {
+        ElMessage({
+            type: "error",
+            message: "请先登录！"
+        })
+    }
+}
+</script>
+
+<style scoped>
+.inner {
+    width: 800px;
+    margin: auto;
+    border-radius: 10px;
+    background-color: #fff;
+    padding: 10px 20px 10px 20px;
+}
+
+.chaptername {
+    margin: 10px auto;
+    font-size: 40px;
+    font-weight: 800;
+    /* border-bottom: 2px solid rgb(236, 236, 236); */
+}
+
+.sectionname {
+    margin-top: 16px;
+    font-size: 20px;
+    border-bottom: 2px solid rgb(236, 236, 236);
+}
+
+.content {
+    margin-top: 10px;
+    line-height: 1.75;
+}
+
+.time {
+    font-size: 13px;
+    color: #545454;
+    text-align: right;
+}
+
+.leftbtns {
+    position: fixed;
+    top: 200px;
+    left: 200px
+}
+
+.back,
+.favor,
+.like {
+    width: 60px;
+    height: 60px;
+    background-color: #fff;
+    border-radius: 50%;
+    text-align: center;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    user-select: none;
+    cursor: pointer;
+    position: relative;
+}
+
+.backicon,
+.favoricon,
+.likeicon {
+    color: rgb(138, 145, 159);
+}
+
+.back span,
+.favor span,
+.like span {
+    font-size: 12px;
+    color: rgb(138, 145, 159);
+}
+
+.back:hover span,
+.back:hover .backicon,
+.favor:hover span,
+.favor:hover .favoricon,
+.like:hover span,
+.like:hover .likeicon {
+    color: rgb(81, 87, 103);
+}
+
+.favor,
+.like {
+    margin-top: 10px;
+}
+
+.number {
+    position: absolute;
+    left: 75%;
+    padding: 0 5px;
+    height: 18px;
+    line-height: 18px;
+    font-size: 12px;
+    border-radius: 9px;
+    background-color: #c2c8d1;
+    color: #fff;
+    top: 0;
+}</style>

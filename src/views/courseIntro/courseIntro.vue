@@ -86,7 +86,7 @@ import {
     ArrowDownBold, ArrowUpBold
 } from '@element-plus/icons-vue'
 import { ElMessage } from 'element-plus';
-import { ref, defineEmits } from 'vue'
+import { ref } from 'vue'
 import {useRouter} from 'vue-router'
 import { usergetall } from '../../service/modules/userHome'
 
@@ -119,16 +119,18 @@ const changeSecColl = (index) => {
     // secColl.value = !secColl.value
     currentIndexArr.value[index] = !currentIndexArr.value[index]
 }
-const emit = defineEmits(['tocourse'])
 const gotocourse = () => {
     const stitle = document.querySelector('#stitle')
-    emit('tocourse', stitle.offsetTop)
+    window.scrollTo({
+        top: stitle.offsetTop,
+        behavior: "smooth"
+    })
 }
 
 const router = useRouter()
 const intoCourse = (kid) => {
     // console.log(kid);
-    router.push('/course/' + kid)
+    router.push('/home/course/' + kid)
 }
 </script>
 
@@ -251,7 +253,7 @@ const intoCourse = (kid) => {
     cursor: pointer;
     line-height: 71px;
     font-size: 0;
-    border-bottom: 1px solid #ebebeb;
+    border-bottom: 1px solid #d3d3d3;
     display: flex;
     align-items: center;
 }

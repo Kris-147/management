@@ -69,3 +69,47 @@ export function delUser(params) {
         data: params
     })
 }
+
+export function userlogin(params) {
+    return myAxios({
+        url: '/user/userlogin',
+        method: 'post',
+        data: params
+    }, {
+        loading: {
+            value: true
+        },
+        repeat_requst_cancel: {
+            value: false
+        }
+    }, {
+        text: '登录中...',
+        background: 'rgba(0, 0, 0, 0.7)'
+    })
+}
+
+export function userreg(params) {
+    return myAxios({
+        url: "/user/userreg",
+        method: "post",
+        data: params
+    }, {
+        loading: {
+            value: true
+        },
+        repeat_requst_cancel: {
+            value: false
+        }
+    }, {
+        text: '注册中...',
+        background: 'rgba(0, 0, 0, 0.7)'
+    })
+}
+
+export function findpassword(params) {
+    return myAxios({
+        url: "/user/findpassword",
+        method: "post",
+        data: params
+    })
+}
