@@ -37,21 +37,21 @@
                 <span>返回</span>
             </div>
             <div class="like" @click="clickLike">
-                <el-icon :size="26" class="likeicon">
+                <el-icon :size="26" class="likeicon" :class="{isicon: islikes}">
                     <Flag />
                 </el-icon>
-                <span>点赞</span>
-                <div class="number">
-                    123
+                <span :class="{isicon:islikes}">点赞</span>
+                <div class="likenumber" :class="{isnumber:islikes}">
+                    {{likeNumber}}
                 </div>
             </div>
             <div class="favor" @click="clickFavor">
-                <el-icon :size="26" class="favoricon">
+                <el-icon :size="26" class="favoricon" :class="{isicon: isfavors}">
                     <StarFilled />
                 </el-icon>
-                <span>收藏</span>
-                <div class="number">
-                    123
+                <span :class="{isicon:isfavors}">收藏</span>
+                <div class="favornumber" :class="{isnumber:isfavors}">
+                    {{favorNumber}}
                 </div>
             </div>
         </div>
@@ -61,7 +61,7 @@
 <script setup>
 import { useRoute, useRouter } from 'vue-router'
 import { ref } from 'vue'
-import { getcontent } from '@/service/modules/userHome'
+import { getcontent,getlikescount,getfavorcount,islike,isfavor } from '@/service/modules/userHome'
 import { ElMessage, ElSkeleton } from 'element-plus';
 import {
     Back, StarFilled, Flag
@@ -95,6 +95,27 @@ getcontent({ kid: route.params.kid }).then(res => {
     loading.value = false
 })
 
+const likeNumber = ref(0)
+const favorNumber = ref(0)
+const islikes= ref(false)
+const isfavors = ref(false)
+
+getlikescount({kid:route.params.kid}).then(res => {
+    likeNumber.value = res.data.data
+})
+
+getfavorcount({kid:route.params.kid}).then(res => {
+    favorNumber.value = res.data.data
+})
+
+islike({kid:route.params.kid}).then(res => {
+    islikes.value = res.data.data
+})
+
+isfavor({kid:route.params.kid}).then(res => {
+    isfavors.value = res.data.data
+})
+
 const router = useRouter()
 const clickBack = () => {
     router.back()
@@ -102,7 +123,7 @@ const clickBack = () => {
 
 const clickLike = () => {
     if (getToken()) {
-
+        console.log(11);
     } else {
         ElMessage({
             type: "error",
@@ -206,7 +227,7 @@ const clickFavor = () => {
     margin-top: 10px;
 }
 
-.number {
+.likenumber,.favornumber {
     position: absolute;
     left: 75%;
     padding: 0 5px;
@@ -217,4 +238,11 @@ const clickFavor = () => {
     background-color: #c2c8d1;
     color: #fff;
     top: 0;
-}</style>
+}
+.isicon{
+    color:rgb(30, 128, 255) !important;
+}
+.isnumber{
+    background-color: rgb(30, 128, 255);
+}
+</style>
