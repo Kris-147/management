@@ -37,21 +37,21 @@
                 <span>返回</span>
             </div>
             <div class="like" @click="clickLike">
-                <el-icon :size="26" class="likeicon" :class="{isicon: islikes}">
+                <el-icon :size="26" class="likeicon" :class="{ isicon: islikes }">
                     <Flag />
                 </el-icon>
-                <span :class="{isicon:islikes}">点赞</span>
-                <div class="likenumber" :class="{isnumber:islikes}">
-                    {{likeNumber}}
+                <span :class="{ isicon: islikes }">点赞</span>
+                <div class="likenumber" :class="{ isnumber: islikes }">
+                    {{ likeNumber }}
                 </div>
             </div>
             <div class="favor" @click="clickFavor">
-                <el-icon :size="26" class="favoricon" :class="{isicon: isfavors}">
+                <el-icon :size="26" class="favoricon" :class="{ isicon: isfavors }">
                     <StarFilled />
                 </el-icon>
-                <span :class="{isicon:isfavors}">收藏</span>
-                <div class="favornumber" :class="{isnumber:isfavors}">
-                    {{favorNumber}}
+                <span :class="{ isicon: isfavors }">收藏</span>
+                <div class="favornumber" :class="{ isnumber: isfavors }">
+                    {{ favorNumber }}
                 </div>
             </div>
         </div>
@@ -61,7 +61,7 @@
 <script setup>
 import { useRoute, useRouter } from 'vue-router'
 import { ref } from 'vue'
-import { getcontent,getlikescount,getfavorcount,islike,isfavor } from '@/service/modules/userHome'
+import { getcontent, getlikescount, getfavorcount, islike, isfavor, addlike, dellike, addfavor, delfavor } from '@/service/modules/userHome'
 import { ElMessage, ElSkeleton } from 'element-plus';
 import {
     Back, StarFilled, Flag
@@ -97,24 +97,36 @@ getcontent({ kid: route.params.kid }).then(res => {
 
 const likeNumber = ref(0)
 const favorNumber = ref(0)
-const islikes= ref(false)
+const islikes = ref(false)
 const isfavors = ref(false)
 
-getlikescount({kid:route.params.kid}).then(res => {
-    likeNumber.value = res.data.data
-})
+function countlikes() {
+    getlikescount({ kid: route.params.kid }).then(res => {
+        likeNumber.value = Number(res.data.data)
+    })
+}
 
-getfavorcount({kid:route.params.kid}).then(res => {
-    favorNumber.value = res.data.data
-})
+function countfavors() {
+    getfavorcount({ kid: route.params.kid }).then(res => {
+        favorNumber.value = Number(res.data.data)
+    })
+}
+countlikes()
+countfavors()
 
-islike({kid:route.params.kid}).then(res => {
-    islikes.value = res.data.data
-})
+function getlikefaovrstatus() {
+    islike({ kid: route.params.kid }).then(res => {
+        islikes.value = res.data.data
+    })
 
-isfavor({kid:route.params.kid}).then(res => {
-    isfavors.value = res.data.data
-})
+    isfavor({ kid: route.params.kid }).then(res => {
+        isfavors.value = res.data.data
+    })
+}
+
+if (getToken()) {
+    getlikefaovrstatus()
+}
 
 const router = useRouter()
 const clickBack = () => {
@@ -123,7 +135,21 @@ const clickBack = () => {
 
 const clickLike = () => {
     if (getToken()) {
-        console.log(11);
+        if (islikes.value == true) {
+            dellike({ kid: route.params.kid }).then(res => {
+                if (res.data.code == 1) {
+                    islikes.value = false
+                    countlikes()
+                }
+            })
+        } else {
+            addlike({ kid: route.params.kid }).then(res => {
+                if (res.data.code == 1) {
+                    islikes.value = true
+                    countlikes()
+                }
+            })
+        }
     } else {
         ElMessage({
             type: "error",
@@ -134,7 +160,21 @@ const clickLike = () => {
 
 const clickFavor = () => {
     if (getToken()) {
-
+        if(isfavors.value == true){
+            delfavor({ kid: route.params.kid }).then(res => {
+                if (res.data.code == 1) {
+                    isfavors.value = false
+                    countfavors()
+                }
+            })
+        }else{
+            addfavor({ kid: route.params.kid }).then(res => {
+                if (res.data.code == 1) {
+                    isfavors.value = true
+                    countfavors()
+                }
+            })
+        }
     } else {
         ElMessage({
             type: "error",
@@ -151,6 +191,7 @@ const clickFavor = () => {
     border-radius: 10px;
     background-color: #fff;
     padding: 10px 20px 10px 20px;
+    margin-top: 30px;
 }
 
 .chaptername {
@@ -227,7 +268,8 @@ const clickFavor = () => {
     margin-top: 10px;
 }
 
-.likenumber,.favornumber {
+.likenumber,
+.favornumber {
     position: absolute;
     left: 75%;
     padding: 0 5px;
@@ -239,10 +281,12 @@ const clickFavor = () => {
     color: #fff;
     top: 0;
 }
-.isicon{
-    color:rgb(30, 128, 255) !important;
+
+.isicon {
+    color: rgb(30, 128, 255) !important;
 }
-.isnumber{
+
+.isnumber {
     background-color: rgb(30, 128, 255);
 }
 </style>

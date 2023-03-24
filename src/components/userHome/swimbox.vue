@@ -1,6 +1,6 @@
 <template>
     <div class="swimbox">
-        <div class="suggest">
+        <div class="suggest" @click="suggest">
             <el-icon :size="34"><ChatLineSquare /></el-icon>
             <span>反馈</span>
         </div>
@@ -23,9 +23,13 @@ const props = defineProps({
         type:Boolean
     }
 })
-const emit = defineEmits(['totop'])
+const emit = defineEmits(['totop','suggest'])
 const gototop = () => {
     emit('totop')
+}
+
+const suggest = () => {
+    emit('suggest')
 }
 </script>
 

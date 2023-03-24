@@ -53,6 +53,15 @@ const router = createRouter({
                     meta: {
                         requireToken: false
                     }
+                },
+                {
+                    path: "myfavor",
+                    component: () =>
+                        import ("@/views/myFavor/myFavor.vue"),
+                    name: "myFavor",
+                    meta: {
+                        requireToken: true
+                    }
                 }
             ]
         },

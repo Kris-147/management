@@ -129,7 +129,6 @@ const gotocourse = () => {
 
 const router = useRouter()
 const intoCourse = (kid) => {
-    // console.log(kid);
     router.push('/home/course/' + kid)
 }
 </script>

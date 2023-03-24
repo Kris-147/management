@@ -1,13 +1,13 @@
 <template>
     <div class="userhome">
-        <headers @tologin="gologin" @toreg="goreg" ref="headerss"></headers>
+        <headers @tologin="gologin" @toreg="goreg" ref="headerss" @logout="logout"></headers>
         <div class="main">
-            <RouterView></RouterView>
+            <RouterView v-if="isRouterAlive"></RouterView>
         </div>
         <div class="footer">
             <footers></footers>
         </div>
-        <swimbox :isshow="show" @totop="gotop"></swimbox>
+        <swimbox :isshow="show" @totop="gotop" @suggest="openSuggest"></swimbox>
         <el-dialog v-model="loginDialogVisible" :title="titles[status]" width="30%" center>
             <div v-if="status == 0">
                 <el-form :model="loginuser" class="loginContainer" :rules="loginrules" ref="loginForm">
@@ -51,7 +51,8 @@
             <div v-else-if="status == 2">
                 <el-form :model="reguser" class="loginContainer" :rules="regrules" ref="regForm">
                     <el-form-item prop="username">
-                        <el-input type="text" auto-complete="false" v-model="reguser.username" placeholder="请输入用户名"></el-input>
+                        <el-input type="text" auto-complete="false" v-model="reguser.username"
+                            placeholder="请输入用户名"></el-input>
                     </el-form-item>
                     <el-form-item prop="email">
                         <el-input type="text" auto-complete="false" v-model="reguser.email" placeholder="请输入邮箱"></el-input>
@@ -67,18 +68,28 @@
                     <el-button type="primary" style="width: 100%" @click="submitReg(regForm)">注册</el-button>
                 </el-form>
             </div>
+            <div v-else-if="status == 3">
+                <el-form :model="sug" :rules="sugrules" ref="sugForm">
+                    <el-form-item prop="usersug">
+                        <el-input resize="none" show-word-limit maxlength="250" :rows="8" type="textarea" auto-complete="false" v-model.trim="sug.usersug"
+                            placeholder="请输入反馈内容"></el-input>
+                    </el-form-item>
+                    <el-button type="primary" style="width: 100%" @click="submitSug(sugForm)">提交</el-button>
+                </el-form>
+            </div>
         </el-dialog>
     </div>
 </template>
 
 <script setup>
-import { ref, onMounted } from 'vue'
+import { ref, onMounted, nextTick } from 'vue'
 import headers from '@/components/userHome/header.vue'
 import footers from '@/components/userHome/footer.vue'
 import swimbox from '@/components/userHome/swimbox.vue'
 import { useRoute } from 'vue-router'
-import { getCaptcha, userlogin, findpassword } from "../../service/modules/user"
+import { getCaptcha, userlogin, findpassword,submitSuggest } from "../../service/modules/user"
 import useLogin from '@/stores/modules/login';
+import { ElMessage } from 'element-plus'
 
 const show = ref(false)
 const handlescroll = () => {
@@ -101,7 +112,7 @@ const gotop = () => {
 
 const loginDialogVisible = ref(false)
 const status = ref(0)
-const titles = ref(['登录', '找回密码', '注册'])
+const titles = ref(['登录', '找回密码', '注册','反馈意见'])
 
 const loginStore = useLogin()
 const gologin = () => {
@@ -158,12 +169,16 @@ const submitLogin = async function (loginForm) {
                     localStorage.setItem("userId", res.data.data.id)
                     loginStore.userInfo.userId = res.data.data.id
                     loginStore.userInfo.username = res.data.data.username
-                    headerss.value.setinfo(true,res.data.data.username)
+                    headerss.value.setinfo(true, res.data.data.username)
                     ElMessage({
                         message: "登录成功",
                         type: "success"
                     })
                     loginDialogVisible.value = false
+                    loginuser.value.code = ""
+                    loginuser.value.password = ""
+                    loginuser.value.username = ""
+                    reload()
                 }
             })
         } else {
@@ -235,32 +250,32 @@ const submitfind = async function (findForm) {
 const reguser = ref({
     username: "",
     password: "",
-    email:"",
-    secpassword:""
+    email: "",
+    secpassword: ""
 })
 
 const regrules = reactive({
     username: [
         { required: true, message: "请输入用户名,长度为5到10位", trigger: "blur" },
-        {min:5,max:10,message:'长度为5到10位',trigger: ['blur', 'change']}
+        { min: 5, max: 10, message: '长度为5到10位', trigger: ['blur', 'change'] }
     ],
     password: [
         { required: true, message: "请输入密码,长度为8到16位", trigger: "blur" },
-        {min:8,max:16, message: "长度为8到16位",trigger: ['blur', 'change']}
+        { min: 8, max: 16, message: "长度为8到16位", trigger: ['blur', 'change'] }
     ],
     email: [
         { required: true, message: '请输入邮箱', trigger: 'blur' },
-        {type:'email',message:"请输入正确的邮箱",trigger: ['blur', 'change']}
+        { type: 'email', message: "请输入正确的邮箱", trigger: ['blur', 'change'] }
     ],
-    secpassword:[
-        {validator:checksec,trigger:['blur', 'change']}
+    secpassword: [
+        { validator: checksec, trigger: ['blur', 'change'] }
     ]
 })
 const regForm = ref(null)
 const submitReg = async function (regForm) {
     await regForm.validate((valid) => {
         if (valid) {
-            userreg({username:user.value.username,password:user.value.password,email:user.value.email}).then(res => {
+            userreg({ username: user.value.username, password: user.value.password, email: user.value.email }).then(res => {
                 if (res.data.code == 1) {
                     ElMessage({
                         message: "注册成功",
@@ -271,6 +286,61 @@ const submitReg = async function (regForm) {
                     ElMessage({
                         message: res.data.msg,
                         type: "error"
+                    })
+                }
+            })
+        } else {
+            ElMessage({
+                message: "请输入所有字段",
+                type: "error"
+            })
+        }
+    })
+}
+
+const isRouterAlive = ref(true)
+const reload = () => {
+    isRouterAlive.value = false
+    nextTick(() => {
+        isRouterAlive.value = true
+    })
+}
+const logout = () => {
+    reload()
+}
+
+const sug = ref({
+    usersug:""
+})
+
+const sugrules = reactive({
+    usersug: [
+        { required: true, message: "请输入意见", trigger: "blur" },
+    ]
+})
+
+const sugForm = ref(null)
+
+const openSuggest = () => {
+    status.value = 3
+    loginDialogVisible.value = true
+}
+
+const submitSug = async function (sugForm) {
+    await sugForm.validate((valid) => {
+        if (valid) {
+            submitSuggest({content:sug.value.usersug}).then(res => {
+                if(res.data.code == 1){
+                    ElMessage({
+                        type:"success",
+                        message:res.data.msg
+                    })
+                    sug.value.usersug = ""
+                    loginDialogVisible.value = false
+                }else{
+                    ElMessage({
+                        type:"error",
+                        message:res.data.msg
                     })
                 }
             })

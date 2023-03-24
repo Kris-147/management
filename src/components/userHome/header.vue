@@ -1,7 +1,7 @@
 <template>
     <div class="header">
-        <div class="title">
-            软件测试技术教学网站
+        <div class="title" @click="gohome">
+            软件测试技术思政教学网站
         </div>
         <ul class="menus">
             <li :class="{ active: homePage }" @click="changeActive('home')">首页</li>
@@ -17,15 +17,15 @@
                     <div class="block">
                         <div class="ava">
                             <el-icon>
-                            <Avatar />
-                        </el-icon>
+                                <Avatar />
+                            </el-icon>
                         </div>
-                        <div class="name">{{username}}</div>
+                        <div class="name">{{ username }}</div>
                     </div>
-                    
+
                     <template #dropdown>
                         <el-dropdown-menu>
-                            <el-dropdown-item>我的收藏</el-dropdown-item>
+                            <el-dropdown-item @click="goMyFavor">我的收藏</el-dropdown-item>
                             <el-dropdown-item divided @click="logout">退出登录</el-dropdown-item>
                         </el-dropdown-menu>
                     </template>
@@ -38,12 +38,12 @@
 
 <script setup>
 import { useRouter } from 'vue-router'
-import { ref,watch } from 'vue'
+import { ref, watch } from 'vue'
 import useLogin from '@/stores/modules/login'
 import {
     Avatar
 } from '@element-plus/icons-vue'
-import {deleteToken} from '@/utils/DeleteToken'
+import { deleteToken } from '@/utils/DeleteToken'
 
 const homePage = ref(true)
 const mapPage = ref(false)
@@ -60,7 +60,7 @@ const changeActive = (page) => {
         router.push('/home/knowledgemap')
     }
 }
-const emit = defineEmits(['tologin', 'toreg'])
+const emit = defineEmits(['tologin', 'toreg', 'logout'])
 const gologin = () => {
     emit('tologin')
 }
@@ -71,7 +71,7 @@ const goreg = () => {
 const loginStore = useLogin()
 const islogin = ref(false)
 const username = ref("")
-const setinfo = (isl,un) => {
+const setinfo = (isl, un) => {
     islogin.value = isl
     username.value = un
 }
@@ -90,6 +90,17 @@ const logout = () => {
     loginStore.userInfo.userId = ""
     username.value = ""
     islogin.value = false
+    emit('logout')
+}
+
+const goMyFavor = () => {
+    router.push("/home/myfavor")
+}
+
+const gohome = () => {
+    homePage.value = true
+    mapPage.value = false
+    router.push("/")
 }
 </script>
 
@@ -107,8 +118,12 @@ const logout = () => {
 }
 
 .title {
-    width: 360px;
-    padding-left: 80px;
+    width: 290px;
+    margin-left: 50px;
+    margin-right: 90px;
+    cursor: pointer;
+    font-size: 24px;
+    font-weight: 600;
 }
 
 .menus {
@@ -188,7 +203,7 @@ const logout = () => {
 }
 
 .showname {
-    
+
     padding-left: 100px;
 }
 
@@ -198,7 +213,8 @@ const logout = () => {
     justify-content: center;
     outline: none;
 }
-.ava{
+
+.ava {
     width: 30px;
     height: 30px;
     border-radius: 50%;
@@ -211,5 +227,4 @@ const logout = () => {
     margin-left: 10px;
     user-select: none;
 }
-
 </style>

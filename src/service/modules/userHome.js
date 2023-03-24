@@ -43,3 +43,42 @@ export function isfavor(params) {
         data: params
     })
 }
+
+export function addlike(params) {
+    return myAxios({
+        url: "/likes/addlikes",
+        method: "post",
+        data: params
+    })
+}
+
+export function dellike(params) {
+    return myAxios({
+        url: "/likes/dellikes",
+        method: "post",
+        data: params
+    })
+}
+
+export function addfavor(params) {
+    return myAxios({
+        url: "/favor/addfavor",
+        method: "post",
+        data: params
+    })
+}
+
+export function delfavor(params) {
+    return myAxios({
+        url: "/favor/delfavor",
+        method: "post",
+        data: params
+    })
+}
+
+export function initfavor(params) {
+    return myAxios({
+        url: "/favor/getallfavor",
+        method: "get"
+    })
+}

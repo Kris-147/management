@@ -113,3 +113,18 @@ export function findpassword(params) {
         data: params
     })
 }
+
+export function submitSuggest(params) {
+    return myAxios({
+        url: "/suggest/submit",
+        method: "post",
+        data: params
+    }, {
+        loading: {
+            value: true
+        }
+    }, {
+        text: '提交中...',
+        background: 'rgba(0, 0, 0, 0.7)'
+    })
+}
