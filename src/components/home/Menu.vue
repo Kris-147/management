@@ -3,24 +3,26 @@
         router>
         <el-menu-item index="/admin/userManage">
             <el-icon>
-                <location />
+                <User />
             </el-icon>
             <span>用户管理</span>
         </el-menu-item>
         <el-menu-item index="/admin/messageManage">
-            <el-icon><icon-menu /></el-icon>
+            <el-icon>
+                <ChatDotRound />
+            </el-icon>
             <span>消息管理</span>
         </el-menu-item>
         <el-sub-menu index="/">
             <template #title>
                 <el-icon>
-                    <location />
+                    <Notebook />
                 </el-icon>
                 <span>知识点管理</span>
             </template>
             <el-menu-item index="/admin/chapterManage">
                 <el-icon>
-                    <document />
+                    <Collection />
                 </el-icon>
                 <span>章节管理</span>
             </el-menu-item>
@@ -32,11 +34,11 @@
             </el-menu-item>
         </el-sub-menu>
 
-        <el-menu-item index="4">
+        <el-menu-item index="/admin/politicsManage">
             <el-icon>
-                <setting />
+                <Postcard />
             </el-icon>
-            <span>Navigator Four</span>
+            <span>思政素材管理</span>
         </el-menu-item>
     </el-menu>
 </template>
@@ -44,9 +46,11 @@
 <script setup>
 import {
     Document,
-    Menu as IconMenu,
-    Location,
-    Setting,
+    User,
+    ChatDotRound,
+    Notebook,
+    Collection,
+    Postcard
 } from '@element-plus/icons-vue'
 import { useRoute } from 'vue-router';
 
@@ -61,8 +65,6 @@ const route = useRoute()
 // const activePath = ref("/home/userManage")
 </script>
 
-<style scoped>
-:deep(.el-menu){
+<style scoped>:deep(.el-menu) {
     border-right: none;
-}
-</style>
+}</style>

@@ -108,7 +108,6 @@ const gohome = () => {
 .header {
     width: 100%;
     height: 48px;
-    /* background-color: #ccc; */
     display: flex;
     align-items: center;
     border-bottom: 1px solid #eee;

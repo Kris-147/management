@@ -117,6 +117,14 @@ const router = createRouter({
                 meta: {
                     title: "内容管理"
                 }
+            }, {
+                path: "politicsManage",
+                component: () =>
+                    import ("@/views/politicsManage/politicsManage.vue"),
+                name: "politicsManage",
+                meta: {
+                    title: "思政素材管理"
+                }
             }]
         },
         {

@@ -78,7 +78,7 @@
 import { Search, Plus } from '@element-plus/icons-vue'
 import { ElMessage, ElMessageBox } from 'element-plus';
 import '@wangeditor/editor/dist/css/style.css' // 引入 css
-import { onBeforeUnmount, ref, shallowRef, onMounted } from 'vue'
+import { onBeforeUnmount, ref, shallowRef } from 'vue'
 import { Editor, Toolbar } from '@wangeditor/editor-for-vue'
 import { getToken } from '../../utils/getToken'
 import { updateKnowledge, getContent, delKnowledge, getAllChapter, getKnowledgeByChapterId, searchKnowledgeByChapterId, addKnowledge } from '../../service/modules/knowledge'
