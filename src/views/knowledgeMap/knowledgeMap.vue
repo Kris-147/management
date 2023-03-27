@@ -5,14 +5,28 @@
 </template>
 
 <script setup>
+// import * as d3 from 'd3'
 import * as d3 from 'd3'
-import { onMounted } from 'vue'
-import data from '../../mock/data.json'
+import { onMounted, ref } from 'vue'
+// import data from '../../mock/data.json'
+import { knowledgeMap, findRelationByCid } from '@/service/modules/knowledge'
 
-onMounted(() => {
-    init();
-});
-//增加拖拽功能
+const nodes = ref([])
+const links = ref([])
+const addnodes = ref([])
+const addlinks = ref([])
+const addnodesname = ref([])
+const simulation = ref([])
+const svgArea = ref({})
+
+
+
+knowledgeMap().then(res => {
+    nodes.value = res.data.nodes
+    // links.value = res.data.links
+    init()
+})
+
 const drag = (simulation) => {
     function dragstarted(event, d) {
         if (!event.active) simulation.alphaTarget(0.3).restart();
@@ -37,138 +51,131 @@ const drag = (simulation) => {
         .on("drag", dragged)
         .on("end", dragended);
 };
-function init() {
-    const height = 600;
-    const width = 900;
-    const root = d3.hierarchy(data);
-    const links = root.links();
-    const nodes = root.descendants();
 
-    const simulation = d3
-        .forceSimulation(nodes)
-        .force(
-            "link",
-            d3
-                .forceLink(links)
-                .id((d) => d.id)
-                //设置距离
-                .distance(100)
-                //设置聚合，越小越分散
-                .strength(0.5)
-        )
-        //设置边距
-        //设置超出拉扯距离，越小越不会超出画布
-        .force("charge", d3.forceManyBody().strength(-100))
+const init = function () {
+    const width = 1300
+    const height = 900
+    const ls = links.value.map(d => Object.create(d))
+    const ns = nodes.value.map(d => Object.create(d))
+    simulation.value = d3.forceSimulation(ns)
+        .force('link', d3.forceLink(ls).id(d => d.id).distance(150).strength(0.5))
+        .force('collide', d3.forceCollide().radius(() => 50))
+        .force('charge', d3.forceManyBody().strength(-10))
         .force("x", d3.forceX())
         .force("y", d3.forceY());
 
-    //指定容器
-    const svg = d3
-        .select(".knowledgemap")
-        .append("svg")
-        //设置展示到画板中间
-        .attr("viewBox", [-width / 2, -height / 2, width, height]);
+    svgArea.value = d3
+        .select('.knowledgemap')
+        .append('svg')
+        .attr("viewBox", [-width / 2, -height / 2, width, height])
 
-    const g = svg.append('g')
+    const g = svgArea.value.append('g')
 
     function zoomed({ transform }) {
-        g.attr("transform", transform);
+        g.attr('transform', transform)
     }
 
-    svg.call(d3.zoom()
+    svgArea.value.call(d3.zoom()
         .extent([[0, 0], [width, height]])
         .scaleExtent([1, 5])
-        .on("zoom", zoomed));
+        .on("zoom", zoomed))
 
-    const link = g
-        .append("g")
+    addlinks.value = g.append('g')
         .attr("stroke", "#999")
         .attr("stroke-opacity", 0.6)
         .selectAll("line")
-        .data(links)
-        .join("line");
+        .data(ls)
+        .join("line")
 
-    const node1 = g
-        .append("g")
-        .attr("fill", "#fff")
-        .attr("stroke", "#000")
-        .attr("stroke-width", 1)
-        .selectAll("circle")
-        .data(nodes)
+    addnodes.value = g.append('g')
+        // .attr("stroke", '#999')
+        // .attr("stroke-width", 1.5)
+        .selectAll('circle')
+        .data(ns, d => d.id)
         .join("circle")
-        //给圆设置背景色
-        .attr("fill", (d) => (d.children ? null : "lightgreen"))
-        .attr("stroke", (d) => (d.children ? null : "lightgreen"))
-        //指定圆的半径
         .attr("r", 20)
-        //应用拖拽
-        .call(drag(simulation));
+        .attr("class", "node")
+        .attr("fill", (d) => (d.chapterName ? "tomato" : "#999"))
+        .on("click",queryTest)
+        // .attr("stroke", (d) => (d.chapterName ? "tomato" : null))
+        // .join("text")
+        // .text((d) => {
+        //     // console.log(d);
+        //     // console.log(d.chapterName ? d.chapterName : d.knowledgeName);
+        // })
+        .call(drag(simulation.value))
 
-    const node = g
-        .append("g")
-        //给元素设置class属性，目前给定了元素的样式但是不生效，和style一样的疑问？？
+    addnodes.value.append('title')
+        .text(d => d.chapterName)
+
+    addnodesname.value = g.append("g")
         .attr("class", "my-class")
-        .selectAll(".my-class")
-        .data(nodes)
+        .selectAll("my-class")
+        .data(ns)
         .join("text")
-        //可以直接设置style属性，试了很多属性不起作用，除了font-size和fill属性，暂时还没找到原因？？
-        .attr("style", "font-family: arial; ;")
-        //设置两个text会被覆盖
+        .attr("dy", 33)
+        .style("text-anchor", "middle")
         .text((d) => {
-            // console.log(d);
-            return d.data.name;
+            return d.chapterName ? d.chapterName : d.knowledgeName
         })
-        //应用拖拽
-        .call(drag(simulation));
+        .call(drag(simulation.value))
 
-    // node
-    //   .append("g")
-    //   .append("text")
-    //   .style("font-weight", 500)
-    //   .style("font-family", "Arial")
-    //   .style("fill", "red")
-    //   .text("矩形1");
-
-    simulation.on("tick", () => {
-        let x1 = 0;
-        let x2 = 0;
-        let y1 = 0;
-        let y2 = 0;
-        //线条需要用四个点来确定位置
-        link
-            .attr("x1", (d) => {
+    simulation.value.on("tick", () => {
+        addlinks.value
+            .attr('x1', d => {
                 // console.log(d);
-                x1 = d.source.x;
-                return x1;
+                return d.source.x
             })
-            .attr("y1", (d) => {
-                y1 = d.source.y;
-                return y1;
-            })
-            .attr("x2", (d) => {
-                x2 = d.target.x;
-                return x2;
-            })
-            .attr("y2", (d) => {
-                y2 = d.target.y;
-                return y2;
-            });
-        //设置坐标进行定位
-        node
-            .attr("x", (d) => {
-                return d.x;
-            })
-            .attr("y", (d) => {
-                return d.y;
-            });
-        //画圆的时候需要用到的，指定cx和cy
-        node1.attr("cx", (d) => d.x).attr("cy", (d) => d.y);
-    });
+            .attr("y1", d => d.source.y)
+            .attr("x2", d => d.target.x)
+            .attr("y2", d => d.target.y);
 
-    // invalidation.then(() => simulation.stop());
+        addnodesname.value
+            .attr("x", d => {
+                // console.log(d);
+                return d.x
+            })
+            .attr("y", d => d.y);
 
-    return svg.node();
+        addnodes.value
+            .attr('cx', (d) => d.x)
+            .attr('cy', (d) => d.y)
+    })
+    // return svg.node()
 }
+
+function queryTest(e,d){
+    findRelationByCid({id:d.id}).then(res => {
+        for(let i = 0; i < res.data.nodes.length; i++){
+            nodes.value.push(res.data.nodes[i])
+        }
+        updateGraph()
+    })
+}
+
+function updateGraph(){
+    const ls = links.value.map(d => Object.create(d))
+    const ns = nodes.value.map(d => Object.create(d))
+
+    addnodes.value = addnodes.value
+        .data(ns, d => d.id)
+        .enter()
+        .append("circle")
+        .attr("r", 20)
+        .attr("class", "node")
+        .attr("fill", "#999")
+        .merge(addnodes.value)
+        .on("click",queryTest)
+        .call(drag(simulation.value))
+
+    addnodes.value.append('title')
+        .text(d => d.chapterName ? d.chapterName : d.knowledgeName)
+
+    simulation.value.nodes(ns)
+    simulation.value.force("link").links(ls)
+    simulation.value.alpha(1).restart()
+}
+
 
 </script>
 
@@ -179,6 +186,7 @@ function init() {
     height: 600px;
     background-color: #fff;
     border-radius: 10px;
+    overflow: hidden;
 }
 
 .classA {
@@ -191,5 +199,15 @@ function init() {
     display: block;
     padding: 2px;
     background-color: aquamarine;
+}
+
+.node {
+    stroke: #999;
+    stroke-width: 1;
+    cursor: pointer !important;
+}
+
+.node:hover {
+    stroke-width: 5;
 }
 </style>

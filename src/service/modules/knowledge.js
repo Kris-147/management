@@ -65,3 +65,24 @@ export function updateKnowledge(params) {
         data: params
     })
 }
+
+export function knowledgeMap() {
+    return myAxios({
+        url: "/knowledge/map",
+        method: "get"
+    }, {
+        loading: {
+            value: true
+        }
+    }, {
+        text: "加载中...",
+        background: 'rgba(0,0,0,0.7)'
+    })
+}
+
+export function findRelationByCid(params) {
+    return myAxios({
+        url: "/knowledge/relation?cid=" + params.id,
+        method: "get"
+    })
+}
