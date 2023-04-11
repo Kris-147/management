@@ -61,7 +61,7 @@
 import { ref } from 'vue'
 import { Search } from '@element-plus/icons-vue'
 import { initTable, handleSug, delSug } from '@/service/modules/suggest'
-import { ElMessage } from 'element-plus';
+import { ElMessage, ElMessageBox } from 'element-plus';
 
 const total = ref(0)
 const currentPage = ref(1)
@@ -121,20 +121,36 @@ const showSuggestContent = (data) => {
     dialogVisible.value = true
 }
 const deleteSuggest = (data) => {
-    delSug({id:data.id}).then(res => {
-        if(res.data.code == 1){
-            ElMessage({
-                type:"success",
-                message:res.data.msg
-            })
-            init()
-        }else{
-            ElMessage({
-                type:"error",
-                message:res.data.msg
-            })
+    ElMessageBox.confirm(
+        `确定要删除"${data.username}"的反馈吗?"`,
+        "删除反馈",
+        {
+            confirmButtonText: "确定",
+            cancelButtonText: "取消",
+            type: 'warning'
         }
+    ).then(r => {
+        delSug({ id: data.id }).then(res => {
+            if (res.data.code == 1) {
+                ElMessage({
+                    type: "success",
+                    message: res.data.msg
+                })
+                init()
+            } else {
+                ElMessage({
+                    type: "error",
+                    message: res.data.msg
+                })
+            }
+        })
+    }).catch(() => {
+        ElMessage({
+            type: 'info',
+            message: "取消删除"
+        })
     })
+
 }
 
 const closeDialog = () => {
@@ -144,12 +160,12 @@ const closeDialog = () => {
 }
 
 const submitDialog = () => {
-    for(let i = 0; i < tableData.value.length; i++){
-        if(checkSug.value == tableData.value[i].id){
-            if(tableData.value[i].handle){
+    for (let i = 0; i < tableData.value.length; i++) {
+        if (checkSug.value == tableData.value[i].id) {
+            if (tableData.value[i].handle) {
                 ElMessage({
-                    type:"warning",
-                    message:"已处理完毕"
+                    type: "warning",
+                    message: "已处理完毕"
                 })
                 dialogVisible.value = false
                 return

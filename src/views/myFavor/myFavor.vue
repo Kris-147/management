@@ -73,6 +73,8 @@ const router = useRouter()
 const gocourse = (id) => {
     router.push('/home/course/' + id)
 }
+
+
 </script>
 
 <style scoped>

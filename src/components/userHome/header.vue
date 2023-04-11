@@ -37,8 +37,8 @@
 </template>
 
 <script setup>
-import { useRouter } from 'vue-router'
-import { ref, watch } from 'vue'
+import { useRouter,useRoute } from 'vue-router'
+import { ref } from 'vue'
 import useLogin from '@/stores/modules/login'
 import {
     Avatar
@@ -48,6 +48,15 @@ import { deleteToken } from '@/utils/DeleteToken'
 const homePage = ref(true)
 const mapPage = ref(false)
 const router = useRouter()
+const route = useRoute()
+
+const loginStore = useLogin()
+const islogin = ref(false)
+const username = ref("")
+const setinfo = (isl, un) => {
+    islogin.value = isl
+    username.value = un
+}
 
 const changeActive = (page) => {
     if (page == 'home') {
@@ -68,13 +77,7 @@ const goreg = () => {
     emit('toreg')
 }
 
-const loginStore = useLogin()
-const islogin = ref(false)
-const username = ref("")
-const setinfo = (isl, un) => {
-    islogin.value = isl
-    username.value = un
-}
+
 defineExpose({
     setinfo
 })
@@ -90,6 +93,10 @@ const logout = () => {
     loginStore.userInfo.userId = ""
     username.value = ""
     islogin.value = false
+    if(route.meta.requireToken == true){
+        router.replace("/")
+        return;
+    }
     emit('logout')
 }
 

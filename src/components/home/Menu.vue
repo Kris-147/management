@@ -40,6 +40,13 @@
             </el-icon>
             <span>思政素材管理</span>
         </el-menu-item>
+
+        <el-menu-item index="/admin/mapManage">
+            <el-icon>
+                <Memo />
+            </el-icon>
+            <span>知识图谱管理</span>
+        </el-menu-item>
     </el-menu>
 </template>
 
@@ -50,7 +57,8 @@ import {
     ChatDotRound,
     Notebook,
     Collection,
-    Postcard
+    Postcard,
+    Memo
 } from '@element-plus/icons-vue'
 import { useRoute } from 'vue-router';
 

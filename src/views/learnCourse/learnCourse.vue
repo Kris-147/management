@@ -17,14 +17,24 @@
                     <div class="chaptername">
                         {{ knowledge.chapterSort }}.{{ knowledge.chapterName }}
                     </div>
-                    <div class="sectionname">
-                        {{ knowledge.chapterSort }}.{{ knowledge.knowledgeSort }} {{ knowledge.sectionName }}
+                    <div class="section">
+                        <div class="knowledgename">{{ knowledge.chapterSort }}.{{ knowledge.knowledgeSort }} {{
+                            knowledge.sectionName }}</div>
+                        <div class="time">{{ knowledge.time }}</div>
                     </div>
                     <div class="content" v-html="knowledge.content">
                     </div>
-                    <div class="time">
-                        {{ knowledge.time }}
-                    </div>
+                    <template v-if="politics.length">
+                        <div class="politicsTitle">
+                            思政素材
+                        </div>
+                        <template v-for="item in politics" :key="item.pname">
+                            <div class="politicsName">
+                                {{ item.pname }}
+                            </div>
+                            <div class="politicsContent" v-html="item.pcontent"></div>
+                        </template>
+                    </template>
                 </template>
             </el-skeleton>
         </div>
@@ -76,6 +86,7 @@ const knowledge = ref({
     content: "",
     time: ""
 })
+const politics = ref([])
 document.body.scrollTop = 0
 
 const loading = ref(true)
@@ -84,14 +95,15 @@ function addDateZero(num) {
     return (num < 10 ? "0" + num : num);
 }
 getcontent({ kid: route.params.kid }).then(res => {
-    knowledge.value.chapterName = res.data.data.chapterName
-    knowledge.value.sectionName = res.data.data.knowledgeName
-    knowledge.value.content = res.data.data.content
-    knowledge.value.chapterSort = res.data.data.chapterSort
-    knowledge.value.knowledgeSort = res.data.data.knowledgeSort
-    let d = new Date(res.data.data.updatedAt)
+    knowledge.value.chapterName = res.data.data.knowledge.chapterName
+    knowledge.value.sectionName = res.data.data.knowledge.knowledgeName
+    knowledge.value.content = res.data.data.knowledge.content
+    knowledge.value.chapterSort = res.data.data.knowledge.chapterSort
+    knowledge.value.knowledgeSort = res.data.data.knowledge.knowledgeSort
+    let d = new Date(res.data.data.knowledge.updatedAt)
     let formatdatetime = d.getFullYear() + '-' + addDateZero(d.getMonth() + 1) + '-' + addDateZero(d.getDate()) + ' ' + addDateZero(d.getHours()) + ':' + addDateZero(d.getMinutes()) + ':' + addDateZero(d.getSeconds());
     knowledge.value.time = formatdatetime
+    politics.value = res.data.data.politics
     loading.value = false
 })
 
@@ -160,14 +172,14 @@ const clickLike = () => {
 
 const clickFavor = () => {
     if (getToken()) {
-        if(isfavors.value == true){
+        if (isfavors.value == true) {
             delfavor({ kid: route.params.kid }).then(res => {
                 if (res.data.code == 1) {
                     isfavors.value = false
                     countfavors()
                 }
             })
-        }else{
+        } else {
             addfavor({ kid: route.params.kid }).then(res => {
                 if (res.data.code == 1) {
                     isfavors.value = true
@@ -201,10 +213,16 @@ const clickFavor = () => {
     /* border-bottom: 2px solid rgb(236, 236, 236); */
 }
 
-.sectionname {
+.section {
     margin-top: 16px;
-    font-size: 20px;
     border-bottom: 2px solid rgb(236, 236, 236);
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+}
+
+.knowledgename {
+    font-size: 20px;
 }
 
 .content {
@@ -215,7 +233,6 @@ const clickFavor = () => {
 .time {
     font-size: 13px;
     color: #545454;
-    text-align: right;
 }
 
 .leftbtns {
@@ -288,5 +305,20 @@ const clickFavor = () => {
 
 .isnumber {
     background-color: rgb(30, 128, 255);
+}
+
+.politicsTitle {
+    margin: 10 auto;
+    font-size: 40px;
+    font-weight: 800;
+    margin-bottom: 10px;
+    border-bottom: 2px solid rgb(236, 236, 236);
+}
+.politicsName{
+    font-size: 30px;
+    margin-bottom: 10px;
+}
+.politicsContent{
+    line-height: 1.75;
 }
 </style>

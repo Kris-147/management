@@ -1,16 +1,50 @@
 <template>
-    <div class="knowledgemap">
+    <div class="mapManage">
+        <div class="btns">
+            <el-button type="primary" :icon="Plus" @click="addChapter" class="addbtn">添加章节</el-button>
+        </div>
+        <div class="mapArea">
 
+        </div>
+        <mapCard :chapterSort="cs" :chapterName="cn" :showSec="showSec" @updateChapter="updateChapter"></mapCard>
+        <el-dialog draggable v-model="dialogVisible" :title="title" align-center width="30%">
+            <div>
+                <el-form :model="chapter" :rules="chapterrules" label-width="100px">
+                    <el-form-item label="章节顺序：" prop="chapterSort">
+                        <el-col :span="8">
+                            <el-input style="width:200px" v-model.number="chapter.chapterSort"
+                                placeholder="请输入章节顺序"></el-input>
+                        </el-col>
+                    </el-form-item>
+                    <el-form-item label="章节名称：" prop="chapterName">
+                        <el-col :span="8">
+                            <el-input style="width:200px" v-model.trim="chapter.chapterName"
+                                placeholder="请输入章节名称"></el-input>
+                        </el-col>
+                    </el-form-item>
+                </el-form>
+            </div>
+            <template #footer>
+                <span class="dialog-footer">
+                    <el-button @click="closeDialog">
+                        取消
+                    </el-button>
+                    <el-button type="primary" @click="submitDialog">
+                        确认
+                    </el-button>
+                </span>
+            </template>
+        </el-dialog>
     </div>
-    <card :chapterSort="cs" :chapterName="cn" :showSec="showSec" :chapterShow="showC" :knowledgeInfo="knowledgeInfo"></card>
 </template>
 
 <script setup>
-// import * as d3 from 'd3'
 import * as d3 from 'd3'
-import { onMounted, ref } from 'vue'
-import card from "@/components/knowledgeMap/card.vue"
+import { ref } from 'vue'
+import mapCard from '@/components/mapManage/manageCard.vue'
+import { Plus } from '@element-plus/icons-vue'
 import { knowledgeMap, findRelationByCid } from '@/service/modules/knowledge'
+import { getAll, updataChapterName, addChapterName, delChapterName, searchChapter } from '../../service/modules/chapter'
 
 const nodes = ref([])
 const links = ref([])
@@ -22,6 +56,7 @@ const simulation = ref([])
 const svgArea = ref({})
 const cs = ref(-1)
 const cn = ref("")
+const cid = ref("")
 const showSec = ref([])
 const showC = ref(true)
 const knowledgeInfo = ref({})
@@ -74,7 +109,7 @@ const init = function () {
         .force("y", d3.forceY());
 
     svgArea.value = d3
-        .select('.knowledgemap')
+        .select('.mapArea')
         .append('svg')
         .attr("viewBox", [-width / 2, -height / 2, width, height])
 
@@ -256,6 +291,7 @@ const init = function () {
 function queryTest(e, d) {
     if (d.chapterName) {
         showC.value = true
+        cid.value = d.id
         cs.value = d.chapterSort
         cn.value = d.chapterName
         showSec.value = []
@@ -403,16 +439,132 @@ function updateGraph() {
     simulation.value.alpha(0.5).restart()
 }
 
+const dialogVisible = ref(false)
+const title = ref("")
+
+const chapter = ref({
+    id: "",
+    chapterSort: "",
+    chapterName: ""
+})
+
+const chapterrules = reactive({
+    chapterName: [
+        { required: true, message: "章节名不能为空" },
+    ],
+    chapterSort: [
+        { required: true, message: "章节顺序不能为空" },
+        { type: 'number', message: "请输入数字" }
+    ]
+})
+
+const chapterStatus = ref("")
+
+const knowledge = ref({
+    id: "",
+    knowledgeName: "",
+    content: "",
+    knowledgeSort: ""
+})
+
+const addChapter = () => {
+    title.value = "添加章节节点"
+    chapterStatus.value = "add"
+    chapter.value.chapterName = ""
+    chapter.value.chapterSort = ""
+    chapter.value.id = ""
+    dialogVisible.value = true
+}
+
+const closeDialog = () => {
+    title.value = ""
+    dialogVisible.value = false
+    chapter.value.id = ""
+    chapter.value.chapterName = ""
+    chapter.value.chapterSort = ""
+}
+
+const updateChapter = () => {
+    title.value = "修改章节节点"
+    chapterStatus.value = "update"
+    chapter.value.id = cid.value
+    chapter.value.chapterName = cn.value
+    chapter.value.chapterSort = cs.value
+    dialogVisible.value = true
+}
+
+const submitDialog = () => {
+    if (chapterStatus.value == "update") {
+        updataChapterName(chapter.value).then(res => {
+            dialogVisible.value = false
+            chapter.value.chapterName = ""
+            chapter.value.id = 0
+            if (res.data.code == 0) {
+                ElMessage({
+                    message: res.data.msg,
+                    type: "error"
+                })
+            } else {
+                ElMessage({
+                    message: res.data.msg,
+                    type: "success"
+                })
+                d3.select('.mapArea').selectAll('*').remove()
+                knowledgeMap().then(res => {
+                    nodes.value = res.data.nodes
+                    init()
+                })
+            }
+        })
+    } else if (chapterStatus.value == "add") {
+        addChapterName({ chapterName: chapter.value.chapterName, chapterSort: chapter.value.chapterSort }).then(res => {
+            dialogVisible.value = false
+            chapter.value.chapterName = ""
+            chapter.value.chapterSort = null
+            chapter.value.id = 0
+            if (res.data.code == 0) {
+                ElMessage({
+                    message: res.data.msg,
+                    type: "error"
+                })
+            } else {
+                ElMessage({
+                    message: res.data.msg,
+                    type: "success"
+                })
+                d3.select('.mapArea').selectAll('*').remove()
+                knowledgeMap().then(res => {
+                    nodes.value = res.data.nodes
+                    init()
+                })
+            }
+        })
+    }
+}
 
 </script>
 
 <style scoped>
-.knowledgemap {
-    margin: 10px auto 0;
+.mapManage {
+    margin: 0 auto;
+}
+
+.btns {
+    display: flex;
+    align-items: center;
+    margin-bottom: 10px;
+}
+
+.addbtn {
+    margin-left: 100px;
+}
+
+.mapArea {
+    margin: 0 0 0 100px;
     width: 900px;
-    height: 600px;
-    background-color: #fff;
+    height: 500px;
     border-radius: 10px;
+    border: 1px solid #ccc;
     overflow: hidden;
 }
 
