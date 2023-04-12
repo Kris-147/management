@@ -16,18 +16,22 @@
         </div>
         <div>
             <el-table :data="tableData" border style="width: 100%" stripe class="table">
-                <el-table-column align="center" prop="id" label="id" width="180" />
-                <el-table-column align="center" prop="username" label="用户名" width="250" />
-                <el-table-column align="center" prop="userrole" label="用户角色">
+                <el-table-column align="center" prop="id" label="id" width="120" />
+                <el-table-column align="center" prop="username" label="用户名" width="200" />
+                <!-- <el-table-column align="center" prop="userrole" label="用户角色">
                     <template #default="scope">
                         <el-tag type="success" effect="light" class="mx-1">
                             {{ scope.row.userrole }}
                         </el-tag>
                     </template>
-                </el-table-column>
+                </el-table-column> -->
+                <el-table-column align="center" prop="email" label="邮箱" width="250" />
+                <el-table-column align="center" prop="createdAt" label="创建时间" width="200" />
+                <el-table-column align="center" prop="updatedAt" label="最近修改时间" width="200" />
                 <el-table-column align="center" label="Operations">
                     <template #default="scope">
                         <el-button size="small" @click="showEditUserView(scope.row)">编辑用户信息</el-button>
+                        <el-button size="small" type="warning" @click="resetPwd(scope.row)">重置密码</el-button>
                         <el-button size="small" type="danger" @click="deleteUser(scope.row)">删除用户</el-button>
                     </template>
                 </el-table-column>
@@ -43,6 +47,11 @@
                     <el-form-item label="用户名：" prop="username">
                         <el-col :span="8">
                             <el-input style="width:200px" v-model.trim="user.username" placeholder="请输入用户名"></el-input>
+                        </el-col>
+                    </el-form-item>
+                    <el-form-item label="邮箱：" prop="email">
+                        <el-col :span="8">
+                            <el-input style="width:200px" v-model.trim="user.email" placeholder="请输入邮箱"></el-input>
                         </el-col>
                     </el-form-item>
                 </el-form>
@@ -64,9 +73,8 @@
 <script setup>
 import { Search, Plus } from '@element-plus/icons-vue'
 import { ElMessage, ElMessageBox } from 'element-plus';
-import { init } from 'events';
 import { ref, reactive } from 'vue';
-import { getAllUser, searchAllUser, createUser, updateUser, delUser } from '../../service/modules/user'
+import { getAllUser, searchAllUser, createUser, updateUser, delUser, resetPassword } from '../../service/modules/user'
 
 const tableData = ref([])
 const total = ref(0)
@@ -82,18 +90,36 @@ const title = ref("")
 const status = ref("")
 const user = ref({
     id: 0,
-    username: ""
+    username: "",
+    email: ""
 })
 const rules = reactive({
     username: [
-        { require: true, message: "用户名不能为空" }
+        { required: true, message: "请输入用户名,长度为5到10位", trigger: "blur" },
+        { min: 5, max: 10, message: '长度为5到10位', trigger: ['blur', 'change'] }
+    ],
+    email: [
+        { required: true, message: '请输入邮箱', trigger: 'blur' },
+        { type: 'email', message: "请输入正确的邮箱", trigger: ['blur', 'change'] }
     ]
 })
+
+function addDateZero(num) {
+    return (num < 10 ? "0" + num : num);
+}
 
 function initUser() {
     fenye.value.offset = (currentPage.value - 1) * size.value
     fenye.value.limit = size.value
     getAllUser(fenye.value).then(res => {
+        for (let i = 0; i < res.data.data.userData.length; i++) {
+            let d = new Date(res.data.data.userData[i].createdAt)
+            let up = new Date(res.data.data.userData[i].updatedAt)
+            let formatdatetime = d.getFullYear() + '-' + addDateZero(d.getMonth() + 1) + '-' + addDateZero(d.getDate()) + ' ' + addDateZero(d.getHours()) + ':' + addDateZero(d.getMinutes()) + ':' + addDateZero(d.getSeconds());
+            let formatdatetime1 = up.getFullYear() + '-' + addDateZero(up.getMonth() + 1) + '-' + addDateZero(up.getDate()) + ' ' + addDateZero(up.getHours()) + ':' + addDateZero(up.getMinutes()) + ':' + addDateZero(up.getSeconds());
+            res.data.data.userData[i].createdAt = formatdatetime
+            res.data.data.userData[i].updatedAt = formatdatetime1
+        }
         tableData.value = res.data.data.userData
         total.value = res.data.data.count
     })
@@ -132,6 +158,7 @@ const addUser = () => {
     title.value = "添加用户"
     user.value.username = ""
     user.value.id = 0
+    user.value.email = ""
     status.value = "add"
     dialogVisible.value = true
 }
@@ -144,7 +171,7 @@ const closeDialog = () => {
 
 const submitDialog = () => {
     if (status.value == "add") {
-        createUser({ username: user.value.username }).then(res => {
+        createUser({ username: user.value.username,email:user.value.email }).then(res => {
             dialogVisible.value = false
             user.value.username = ""
             if (res.data.code == 0) {
@@ -185,8 +212,25 @@ const showEditUserView = (data) => {
     title.value = "编辑用户信息"
     user.value.username = data.username
     user.value.id = data.id
+    user.value.email = data.email
     status.value = "update"
     dialogVisible.value = true
+}
+
+const resetPwd = (data) => {
+    resetPassword({ id: data.id }).then(res => {
+        if (res.data.code == 1) {
+            ElMessage({
+                message: "重置成功",
+                type: "success"
+            })
+        } else {
+            ElMessage({
+                message: "重置失败",
+                type: "danger"
+            })
+        }
+    })
 }
 
 const deleteUser = (data) => {

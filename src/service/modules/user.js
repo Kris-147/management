@@ -128,3 +128,21 @@ export function submitSuggest(params) {
         background: 'rgba(0, 0, 0, 0.7)'
     })
 }
+
+export function resetPassword(params) {
+    return myAxios({
+        url: "/user/reset",
+        method: "post",
+        data: params
+    }, {
+        loading: {
+            value: true
+        },
+        repeat_requst_cancel: {
+            value: false
+        }
+    }, {
+        text: '处理中...',
+        background: 'rgba(0, 0, 0, 0.7)'
+    })
+}
