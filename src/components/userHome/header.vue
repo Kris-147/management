@@ -62,10 +62,12 @@ const changeActive = (page) => {
     if (page == 'home') {
         homePage.value = true
         mapPage.value = false
+        document.title = "首页"
         router.push("/")
     } else if (page == 'map') {
         homePage.value = false
         mapPage.value = true
+        document.title = "知识图谱"
         router.push('/home/knowledgemap')
     }
 }
@@ -94,9 +96,11 @@ const logout = () => {
     username.value = ""
     islogin.value = false
     if(route.meta.requireToken == true){
+        document.title = "首页"
         router.replace("/")
         return;
     }
+    document.title = "首页"
     emit('logout')
 }
 

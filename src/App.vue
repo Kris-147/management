@@ -5,7 +5,7 @@
 </template>
 
 <script setup>
-
+document.title = "首页"
 </script>
 
 <style scoped>

@@ -35,6 +35,15 @@
                     <el-form-item prop="email">
                         <el-input type="text" auto-complete="false" v-model="finduser.email" placeholder="请输入邮箱"></el-input>
                     </el-form-item>
+                    <div style="display: flex;align-items: baseline;">
+                        <el-form-item prop="code">
+                            <el-input style="width:270px" type="text" auto-complete="false" v-model="finduser.code"
+                                placeholder="请输入验证码"></el-input>
+                        </el-form-item>
+                        <span href="javascript:;" @click="sendCode1" style="margin-left: 5px;cursor: pointer;">
+                            {{ codeNum1 == 60 ? "发送验证码" : `${codeNum1}秒后重发` }}
+                        </span>
+                    </div>
                     <el-form-item prop="password">
                         <el-input type="password" auto-complete="false" v-model="finduser.password"
                             placeholder="请输入新密码"></el-input>
@@ -57,6 +66,16 @@
                     <el-form-item prop="email">
                         <el-input type="text" auto-complete="false" v-model="reguser.email" placeholder="请输入邮箱"></el-input>
                     </el-form-item>
+                    <div style="display: flex;align-items: baseline;">
+                        <el-form-item prop="code">
+                            <el-input style="width:270px" type="text" auto-complete="false" v-model="reguser.code"
+                                placeholder="请输入验证码"></el-input>
+                        </el-form-item>
+                        <span href="javascript:;" @click="sendCode" style="margin-left: 5px;cursor: pointer;">
+                            {{ codeNum == 60 ? "发送验证码" : `${codeNum}秒后重发` }}
+                        </span>
+                    </div>
+
                     <el-form-item prop="password">
                         <el-input type="password" auto-complete="false" v-model="reguser.password"
                             placeholder="请输入密码"></el-input>
@@ -71,8 +90,8 @@
             <div v-else-if="status == 3">
                 <el-form :model="sug" :rules="sugrules" ref="sugForm">
                     <el-form-item prop="usersug">
-                        <el-input resize="none" show-word-limit maxlength="250" :rows="8" type="textarea" auto-complete="false" v-model.trim="sug.usersug"
-                            placeholder="请输入反馈内容"></el-input>
+                        <el-input resize="none" show-word-limit maxlength="250" :rows="8" type="textarea"
+                            auto-complete="false" v-model.trim="sug.usersug" placeholder="请输入反馈内容"></el-input>
                     </el-form-item>
                     <el-button type="primary" style="width: 100%" @click="submitSug(sugForm)">提交</el-button>
                 </el-form>
@@ -87,9 +106,10 @@ import headers from '@/components/userHome/header.vue'
 import footers from '@/components/userHome/footer.vue'
 import swimbox from '@/components/userHome/swimbox.vue'
 import { useRoute } from 'vue-router'
-import { getCaptcha, userlogin, findpassword,submitSuggest } from "../../service/modules/user"
+import { getCode, getCaptcha, userlogin, findpassword, submitSuggest, userreg } from "../../service/modules/user"
 import useLogin from '@/stores/modules/login';
 import { ElMessage } from 'element-plus'
+
 
 const show = ref(false)
 const handlescroll = () => {
@@ -112,7 +132,7 @@ const gotop = () => {
 
 const loginDialogVisible = ref(false)
 const status = ref(0)
-const titles = ref(['登录', '找回密码', '注册','反馈意见'])
+const titles = ref(['登录', '找回密码', '注册', '反馈意见'])
 
 const loginStore = useLogin()
 const gologin = () => {
@@ -190,11 +210,16 @@ const submitLogin = async function (loginForm) {
     })
 }
 
+let clearId = ref(null)
+const codeNum = ref(60)
+const isClickSend = ref(false)
+
 const findPassword = () => {
     status.value = 1
 }
 const finduser = ref({
     email: "",
+    code:"",
     password: "",
     secpassword: ""
 })
@@ -236,6 +261,10 @@ const submitfind = async function (findForm) {
                         type: "success"
                     })
                     loginDialogVisible.value = false
+                    finduser.value.code = ""
+                    finduser.value.email = ""
+                    finduser.value.password = ""
+                    finduser.value.secpassword = ""
                 }
             })
         } else {
@@ -247,11 +276,21 @@ const submitfind = async function (findForm) {
     })
 }
 
+const checksec2 = (rule, value, callback) => {
+    if (value === '') {
+        callback(new Error('请再次输入密码'))
+    } else if (value !== reguser.value.password) {
+        callback(new Error('两次密码不一致'))
+    } else {
+        callback()
+    }
+}
 const reguser = ref({
     username: "",
     password: "",
     email: "",
-    secpassword: ""
+    secpassword: "",
+    code: ""
 })
 
 const regrules = reactive({
@@ -267,15 +306,18 @@ const regrules = reactive({
         { required: true, message: '请输入邮箱', trigger: 'blur' },
         { type: 'email', message: "请输入正确的邮箱", trigger: ['blur', 'change'] }
     ],
+    code: [
+        { required: true, message: '请输入验证码', trigger: 'blur' }
+    ],
     secpassword: [
-        { validator: checksec, trigger: ['blur', 'change'] }
+        { validator: checksec2, trigger: ['blur', 'change'] }
     ]
 })
 const regForm = ref(null)
 const submitReg = async function (regForm) {
     await regForm.validate((valid) => {
         if (valid) {
-            userreg({ username: user.value.username, password: user.value.password, email: user.value.email }).then(res => {
+            userreg({ username: reguser.value.username, password: reguser.value.password, email: reguser.value.email,code:reguser.value.code }).then(res => {
                 if (res.data.code == 1) {
                     ElMessage({
                         message: "注册成功",
@@ -287,6 +329,11 @@ const submitReg = async function (regForm) {
                         message: res.data.msg,
                         type: "error"
                     })
+                    reguser.value.code = ""
+                    reguser.value.email = ""
+                    reguser.value.password = ""
+                    reguser.value.secpassword = ""
+                    reguser.value.username = ""
                 }
             })
         } else {
@@ -297,6 +344,55 @@ const submitReg = async function (regForm) {
         }
     })
 }
+
+const sendCode = () => {
+    if (isClickSend.value || codeNum.value != 60) return
+    if (!reguser.value.email) {
+        ElMessage({
+            type: 'error',
+            message: "请输入邮箱"
+        })
+        return
+    }
+    isClickSend.value = true
+    getCode({ email: reguser.value.email }).then(res => {
+        clearId.value = setInterval(() => {
+            codeNum.value--
+            if (codeNum.value == 0) {
+                clearInterval(clearId.value)
+                codeNum.value = 60
+                isClickSend.value = false
+            }
+        }, 1000)
+    })
+}
+
+let clearId1 = ref(null)
+const codeNum1 = ref(60)
+const isClickSend1 = ref(false)
+
+const sendCode1 = () => {
+    if (isClickSend1.value || codeNum1.value != 60) return
+    if (!finduser.value.email) {
+        ElMessage({
+            type: 'error',
+            message: "请输入邮箱"
+        })
+        return
+    }
+    isClickSend1.value = true
+    getCode({ email: finduser.value.email }).then(res => {
+        clearId1.value = setInterval(() => {
+            codeNum1.value--
+            if (codeNum1.value == 0) {
+                clearInterval(clearId1.value)
+                codeNum1.value = 60
+                isClickSend1.value = false
+            }
+        }, 1000)
+    })
+}
+
 
 const isRouterAlive = ref(true)
 const reload = () => {
@@ -310,7 +406,7 @@ const logout = () => {
 }
 
 const sug = ref({
-    usersug:""
+    usersug: ""
 })
 
 const sugrules = reactive({
@@ -329,18 +425,18 @@ const openSuggest = () => {
 const submitSug = async function (sugForm) {
     await sugForm.validate((valid) => {
         if (valid) {
-            submitSuggest({content:sug.value.usersug}).then(res => {
-                if(res.data.code == 1){
+            submitSuggest({ content: sug.value.usersug }).then(res => {
+                if (res.data.code == 1) {
                     ElMessage({
-                        type:"success",
-                        message:res.data.msg
+                        type: "success",
+                        message: res.data.msg
                     })
                     sug.value.usersug = ""
                     loginDialogVisible.value = false
-                }else{
+                } else {
                     ElMessage({
-                        type:"error",
-                        message:res.data.msg
+                        type: "error",
+                        message: res.data.msg
                     })
                 }
             })

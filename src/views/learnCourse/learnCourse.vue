@@ -78,6 +78,8 @@ import {
 } from '@element-plus/icons-vue'
 import { getToken } from '@/utils/getToken'
 
+document.title = "加载中..."
+
 const knowledge = ref({
     chapterSort: "",
     knowledgeSort: "",
@@ -100,6 +102,7 @@ getcontent({ kid: route.params.kid }).then(res => {
     knowledge.value.content = res.data.data.knowledge.content
     knowledge.value.chapterSort = res.data.data.knowledge.chapterSort
     knowledge.value.knowledgeSort = res.data.data.knowledge.knowledgeSort
+    document.title = `${knowledge.value.chapterSort}.${knowledge.value.knowledgeSort} ${knowledge.value.sectionName}`
     let d = new Date(res.data.data.knowledge.updatedAt)
     let formatdatetime = d.getFullYear() + '-' + addDateZero(d.getMonth() + 1) + '-' + addDateZero(d.getDate()) + ' ' + addDateZero(d.getHours()) + ':' + addDateZero(d.getMinutes()) + ':' + addDateZero(d.getSeconds());
     knowledge.value.time = formatdatetime

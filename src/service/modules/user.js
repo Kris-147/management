@@ -146,3 +146,15 @@ export function resetPassword(params) {
         background: 'rgba(0, 0, 0, 0.7)'
     })
 }
+
+export function getCode(params) {
+    return myAxios({
+        url: "/user/getCode",
+        method: "post",
+        data: params
+    }, {
+        loading: {
+            value: false
+        }
+    })
+}

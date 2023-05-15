@@ -33,7 +33,8 @@ const router = createRouter({
                         import ("@/views/courseIntro/courseIntro.vue"),
                     name: "courseIntro",
                     mete: {
-                        requireToken: false
+                        requireToken: false,
+                        documentTitle: "首页"
                     }
                 },
                 {
@@ -42,7 +43,8 @@ const router = createRouter({
                         import ("@/views/knowledgeMap/knowledgeMap.vue"),
                     name: "knowledgeMap",
                     meta: {
-                        requireToken: false
+                        requireToken: false,
+                        documentTitle: "知识图谱"
                     }
                 },
                 {
@@ -60,7 +62,8 @@ const router = createRouter({
                         import ("@/views/myFavor/myFavor.vue"),
                     name: "myFavor",
                     meta: {
-                        requireToken: true
+                        requireToken: true,
+                        documentTitle: "我的收藏"
                     }
                 }
             ]
@@ -71,7 +74,8 @@ const router = createRouter({
                 import ("@/views/login/login.vue"),
             name: "adminlogin",
             meta: {
-                requireToken: false
+                requireToken: false,
+                documentTitle: "管理员登录"
             }
         },
         {
@@ -91,7 +95,8 @@ const router = createRouter({
                         import ("@/views/userManage/userManage.vue"),
                     name: "userManage",
                     meta: {
-                        title: "用户管理"
+                        title: "用户信息管理",
+                        documentTitle: "用户信息管理"
                     }
                 }, {
                     path: "messageManage",
@@ -99,7 +104,8 @@ const router = createRouter({
                         import ("@/views/messageManage/messageManage.vue"),
                     name: "messageManage",
                     meta: {
-                        title: "消息管理"
+                        title: "用户意见管理",
+                        documentTitle: "用户意见管理"
                     }
                 }, {
                     path: "chapterManage",
@@ -107,7 +113,8 @@ const router = createRouter({
                         import ("@/views/chapterManage/chapterManage.vue"),
                     name: "chapterManage",
                     meta: {
-                        title: "章节管理"
+                        title: "章节管理",
+                        documentTitle: "章节管理"
                     }
                 }, {
                     path: "sectionManage",
@@ -115,7 +122,8 @@ const router = createRouter({
                         import ("@/views/sectionManage/sectionManage.vue"),
                     name: "sectionManage",
                     meta: {
-                        title: "内容管理"
+                        title: "知识点内容管理",
+                        documentTitle: "知识点内容管理"
                     }
                 }, {
                     path: "politicsManage",
@@ -123,7 +131,8 @@ const router = createRouter({
                         import ("@/views/politicsManage/politicsManage.vue"),
                     name: "politicsManage",
                     meta: {
-                        title: "思政素材管理"
+                        title: "思政素材管理",
+                        documentTitle: "思政素材管理"
                     }
                 },
                 {
@@ -132,7 +141,8 @@ const router = createRouter({
                         import ("@/views/mapManage/mapManage.vue"),
                     name: "mapManage",
                     meta: {
-                        title: "知识图谱管理"
+                        title: "知识图谱管理",
+                        documentTitle: "知识图谱管理"
                     }
                 }
             ]
@@ -140,7 +150,10 @@ const router = createRouter({
         {
             path: "/:pathMatch(.*)",
             component: () =>
-                import ("@/views/NotFound/NotFound.vue")
+                import ("@/views/NotFound/NotFound.vue"),
+            meta: {
+                documentTitle: "页面不存在"
+            }
         }
     ]
 })
@@ -150,9 +163,15 @@ router.beforeEach(async(to, from, next) => {
     const token = getToken()
     const loginStore = useLogin()
     if (to.meta.requireToken == false) {
+        if (to.meta.documentTitle) {
+            document.title = to.meta.documentTitle
+        }
         next()
     } else {
         if (token) {
+            if (to.meta.documentTitle) {
+                document.title = to.meta.documentTitle
+            }
             next()
         } else {
             ElMessage({

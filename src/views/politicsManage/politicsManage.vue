@@ -24,7 +24,7 @@
                         <el-button size="small" @click="showEditPoliticsView(scope.row)">
                             修改思政素材
                         </el-button>
-                        <el-button size="small" type="danger" @click="deletePolitics(scope.row)">删除知识点</el-button>
+                        <el-button size="small" type="danger" @click="deletePolitics(scope.row)">删除思政素材</el-button>
                     </template>
                 </el-table-column>
             </el-table>

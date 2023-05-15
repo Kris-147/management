@@ -5,13 +5,13 @@
             <el-icon>
                 <User />
             </el-icon>
-            <span>用户管理</span>
+            <span>用户信息管理</span>
         </el-menu-item>
         <el-menu-item index="/admin/messageManage">
             <el-icon>
                 <ChatDotRound />
             </el-icon>
-            <span>消息管理</span>
+            <span>用户意见管理</span>
         </el-menu-item>
         <el-sub-menu index="/">
             <template #title>
@@ -30,7 +30,7 @@
                 <el-icon>
                     <document />
                 </el-icon>
-                <span>内容管理</span>
+                <span>知识点内容管理</span>
             </el-menu-item>
         </el-sub-menu>
 
