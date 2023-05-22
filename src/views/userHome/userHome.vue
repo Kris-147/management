@@ -355,7 +355,7 @@ const sendCode = () => {
         return
     }
     isClickSend.value = true
-    getCode({ email: reguser.value.email }).then(res => {
+    getCode({ email: reguser.value.email,type:"reg" }).then(res => {
         clearId.value = setInterval(() => {
             codeNum.value--
             if (codeNum.value == 0) {
@@ -381,7 +381,7 @@ const sendCode1 = () => {
         return
     }
     isClickSend1.value = true
-    getCode({ email: finduser.value.email }).then(res => {
+    getCode({ email: finduser.value.email,type:"find" }).then(res => {
         clearId1.value = setInterval(() => {
             codeNum1.value--
             if (codeNum1.value == 0) {
